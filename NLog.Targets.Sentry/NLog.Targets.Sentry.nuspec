@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>$id$</id>
+    <id>NLog.Targets.Sentry2</id>
     <version>$version$</version>
     <title>$title$</title>
     <authors>$author$</authors>
@@ -12,8 +12,7 @@
     <description>$description$</description>
     <copyright>$copyright$</copyright>
     <tags>NLog Sentry Log Logging</tags>
-    <releaseNotes>Added bool property "IgnoreEventsWithNoException" to target.
-If this is set to true then only events containing an exception is sent to Sentry.
+    <releaseNotes>Added to the default client factory to configure the RavenClient based on optional properties in the configuration.
     </releaseNotes>
   </metadata>
 </package>

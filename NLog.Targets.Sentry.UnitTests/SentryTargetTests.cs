@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using Moq;
+﻿using Moq;
 using NLog.Config;
 using NUnit.Framework;
 using SharpRaven;
 using SharpRaven.Data;
+using System;
+using System.Collections.Generic;
 
 namespace NLog.Targets.Sentry.UnitTests
 {
@@ -52,12 +52,12 @@ namespace NLog.Targets.Sentry.UnitTests
             Exception lException = null;
 
             sentryClient
-                .Setup(x => x.CaptureException(It.IsAny<Exception>(), It.IsAny<SentryMessage>(), It.IsAny<ErrorLevel>(), It.IsAny<IDictionary<string, string>>(), It.IsAny<object>()))
-                .Callback((Exception exception, SentryMessage msg, ErrorLevel lvl, IDictionary<string, string> d, object extra) =>
+                .Setup(x => x.Capture(It.IsAny<SentryEvent>()))
+                .Callback((SentryEvent sentryEvent) =>
                 {
-                    lException = exception;
-                    lErrorLevel = lvl;
-                    lTags = d;
+                    lException = sentryEvent.Exception;
+                    lErrorLevel = sentryEvent.Level;
+                    lTags = sentryEvent.Tags;
                 })
                 .Returns("Done");
 
@@ -81,13 +81,12 @@ namespace NLog.Targets.Sentry.UnitTests
                 logger.ErrorException("Error Message", e);
             }
 
+            Assert.IsNotNull(lException);
             Assert.IsTrue(lException.Message == "Oh No!");
-            Assert.IsTrue(lTags == null);
+            Assert.IsNotNull(lTags);
+            Assert.IsTrue(0 == lTags.Count);
             Assert.IsTrue(lErrorLevel == ErrorLevel.Error);
         }
-
-
-
 
         [Test]
         public void TestLoggingToSentry_SendLogEventInfoPropertiesAsTags()
@@ -98,12 +97,12 @@ namespace NLog.Targets.Sentry.UnitTests
             Exception lException = null;
 
             sentryClient
-                .Setup(x => x.CaptureException(It.IsAny<Exception>(), It.IsAny<SentryMessage>(), It.IsAny<ErrorLevel>(), It.IsAny<IDictionary<string, string>>(), It.IsAny<object>()))
-                .Callback((Exception exception, SentryMessage msg, ErrorLevel lvl, IDictionary<string, string> d, object extra) =>
+                .Setup(x => x.Capture(It.IsAny<SentryEvent>()))
+                .Callback((SentryEvent sentryEvent) =>
                 {
-                    lException = exception;
-                    lErrorLevel = lvl;
-                    lTags = d;
+                    lException = sentryEvent.Exception;
+                    lErrorLevel = sentryEvent.Level;
+                    lTags = sentryEvent.Tags;
                 })
                 .Returns("Done");
 
@@ -133,6 +132,7 @@ namespace NLog.Targets.Sentry.UnitTests
                 logger.Log(logEventInfo);
             }
 
+            Assert.IsNotNull(lException);
             Assert.IsTrue(lException.Message == "Oh No!");
             Assert.IsTrue(lTags != null);
             Assert.IsTrue(lErrorLevel == ErrorLevel.Error);
