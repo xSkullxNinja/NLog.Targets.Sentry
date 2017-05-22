@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("NLog.Targets.Sentry")]
+[assembly: AssemblyTitle("NLog.Targets.Sentry2")]
 [assembly: AssemblyDescription("Custom target for NLog enabling you to send logging messages to the Sentry logging service.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Bjarne Riis, Dillon Buchanan")]
-[assembly: AssemblyProduct("NLog.Targets.Sentry")]
+[assembly: AssemblyProduct("NLog.Targets.Sentry2")]
 [assembly: AssemblyCopyright("Copyright © 2016 Bjarne Riis")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

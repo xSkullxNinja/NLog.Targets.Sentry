@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NLog.Targets.Sentry</RootNamespace>
-    <AssemblyName>NLog.Targets.Sentry</AssemblyName>
+    <AssemblyName>NLog.Targets.Sentry2</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>

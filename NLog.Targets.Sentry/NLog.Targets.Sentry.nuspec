@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>NLog.Targets.Sentry2</id>
+    <id>$id$</id>
     <version>$version$</version>
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
     <licenseUrl>https://github.com/bjarneriis/NLog.Targets.Sentry/blob/master/License.txt</licenseUrl>
-    <projectUrl>https://github.com/bjarneriis/NLog.Targets.Sentry</projectUrl>
+    <projectUrl>https://github.com/mike-dempster/NLog.Targets.Sentry</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <copyright>$copyright$</copyright>
