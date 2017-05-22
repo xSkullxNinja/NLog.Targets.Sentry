@@ -12,7 +12,7 @@
     <description>$description$</description>
     <copyright>$copyright$</copyright>
     <tags>NLog Sentry Log Logging</tags>
-    <releaseNotes>Added to the default client factory to configure the RavenClient based on optional properties in the configuration.
+    <releaseNotes>Fixed inverted logic and updated readme.md
     </releaseNotes>
   </metadata>
 </package>

@@ -138,7 +138,7 @@ namespace NLog.Targets
 
             string release = ConfigurationManager.AppSettings["RavenClient.Release"];
 
-            if (false == string.IsNullOrWhiteSpace(release))
+            if (string.IsNullOrWhiteSpace(release))
             {
                 release = Assembly.GetExecutingAssembly()
                                   .GetName()
