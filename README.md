@@ -17,11 +17,11 @@ To use the Sentry target, simply add it an extension in the NLog.config file and
   </extensions>
 
   <targets>
-    <target name="Sentry" type="Sentry" dsn="<your sentry dsn>"/>
+    <target name="Sentry" type="Sentry" dsn="[your sentry dsn]"/>
   </targets>
 
   <rules>
-    <logger name="*"  appendTo="Sentry" minLevel="Error"/>
+    <logger name="*" appendTo="Sentry" minLevel="Error"/>
   </rules>
 </nlog>
 ```
@@ -31,10 +31,10 @@ To use the Sentry target, simply add it an extension in the NLog.config file and
 The environment, timeout, and release properties on the client can be set by configuring the desired values in the appSettings. If the release value 
 is not configured then it will be set to the assembly version of the executing assembly.
 
-Environment: ```<add key="RavenClient.Environment" value="" />```
+Environment: ```xml
+<add key="RavenClient.Environment" value="" />```
 
-Timeout: ```<add key="RavenClient.Timeout" value="" />```
-
-Release: ```<add key="RavenClient.Release" value="" />```
+Timeout: ```xml
+<add key="RavenClient.Timeout" value="" />```
 
 The package is also available through NuGet as "NLog.Targets.Sentry2".
