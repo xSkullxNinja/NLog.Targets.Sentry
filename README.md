@@ -7,7 +7,7 @@ Sentry Target for NLog
 
 To use the Sentry target, simply add it an extension in the NLog.config file and place the NLog.Targets.Sentry.dll in the same location as the NLog.dll & NLog.config files.
 
-```xml
+```
 <?xml version="1.0" encoding="utf-8" ?>
 <nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -31,10 +31,10 @@ To use the Sentry target, simply add it an extension in the NLog.config file and
 The environment, timeout, and release properties on the client can be set by configuring the desired values in the appSettings. If the release value 
 is not configured then it will be set to the assembly version of the executing assembly.
 
-Environment: ```xml
+Environment: ```
 <add key="RavenClient.Environment" value="" />```
 
-Timeout: ```xml
+Timeout: ```
 <add key="RavenClient.Timeout" value="" />```
 
 The package is also available through NuGet as "NLog.Targets.Sentry2".
