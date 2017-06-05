@@ -12,7 +12,7 @@
     <description>$description$</description>
     <copyright>$copyright$</copyright>
     <tags>NLog Sentry Log Logging</tags>
-    <releaseNotes>Fixed inverted logic and updated readme.md
+    <releaseNotes>Changed the assembly name to NLog.Targets.Setry and hard coded the package name in the NuSpec
     </releaseNotes>
   </metadata>
 </package>
