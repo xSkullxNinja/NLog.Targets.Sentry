@@ -17,11 +17,11 @@ To use the Sentry target, simply add it an extension in the NLog.config file and
   </extensions>
 
   <targets>
-    <target name="Sentry" type="Sentry" dsn="[your sentry dsn]"/>
+    <target name="sentry" type="Sentry" dsn="[your sentry dsn]"/>
   </targets>
 
   <rules>
-    <logger name="*" appendTo="Sentry" minLevel="Error"/>
+    <logger name="*" minlevel="Error" writeTo="sentry" />
   </rules>
 </nlog>
 ```
