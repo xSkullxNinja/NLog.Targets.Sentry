@@ -12,7 +12,7 @@ using System.Reflection;
 // ReSharper disable CheckNamespace
 
 namespace NLog.Targets
-// ReSharper restore CheckNamespace
+    // ReSharper restore CheckNamespace
 {
     [Target("Sentry")]
     public class SentryTarget : TargetWithLayout
@@ -100,7 +100,7 @@ namespace NLog.Targets
         /// Internal constructor, used for unit-testing
         /// </summary>
         /// <param name="ravenClient">A <see cref="IRavenClient"/></param>
-        internal SentryTarget(IRavenClient ravenClient) : this()
+        internal SentryTarget(IRavenClient ravenClient)
         {
             this.client = new Lazy<IRavenClient>(() => ravenClient);
         }
@@ -149,10 +149,29 @@ namespace NLog.Targets
                     this.client.Value.Capture(sentryEvent);
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                InternalLogger.Error("Unable to send Sentry request: {0}", e.Message);
+                this.LogException(ex);
             }
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing">True to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && this.client.IsValueCreated)
+            {
+                var ravenClient = this.client.Value as RavenClient;
+
+                if (ravenClient != null)
+                {
+                    ravenClient.ErrorOnCapture = null;
+                }
+            }
+
+            base.Dispose(disposing);
         }
 
         /// <summary>
@@ -161,7 +180,10 @@ namespace NLog.Targets
         /// <returns>New instance of a RavenClient.</returns>
         private IRavenClient DefaultClientFactory()
         {
-            var ravenClient = new RavenClient(this.dsn);
+            var ravenClient = new RavenClient(this.dsn)
+            {
+                ErrorOnCapture = this.LogException
+            };
 
             string timeoutSetting = ConfigurationManager.AppSettings["RavenClient.Timeout"];
             TimeSpan timeout;
@@ -180,6 +202,11 @@ namespace NLog.Targets
             }
 
             return ravenClient;
+        }
+
+        private void LogException(Exception ex)
+        {
+            InternalLogger.Error("Unable to send Sentry request: {0}", ex.Message);
         }
     }
 }
