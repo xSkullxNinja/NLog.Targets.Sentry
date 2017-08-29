@@ -5,6 +5,7 @@ using SharpRaven;
 using SharpRaven.Data;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace NLog.Targets.Sentry.UnitTests
 {
@@ -26,7 +27,9 @@ namespace NLog.Targets.Sentry.UnitTests
         [Test]
         public void TestPublicConstructor()
         {
+            // ReSharper disable ObjectCreationAsStatement
             Assert.DoesNotThrow(() => new SentryTarget());
+            // ReSharper restore ObjectCreationAsStatement
             Assert.Throws<NLogConfigurationException>(() =>
             {
                 var sentryTarget = new SentryTarget();
@@ -40,7 +43,9 @@ namespace NLog.Targets.Sentry.UnitTests
         [Test]
         public void TestBadDsn()
         {
+            // ReSharper disable ObjectCreationAsStatement
             Assert.Throws<ArgumentException>(() => new SentryTarget(null) { Dsn = "http://localhost" });
+            // ReSharper restore ObjectCreationAsStatement
         }
 
         [Test]
@@ -78,7 +83,7 @@ namespace NLog.Targets.Sentry.UnitTests
             catch (Exception e)
             {
                 var logger = LogManager.GetCurrentClassLogger();
-                logger.ErrorException("Error Message", e);
+                logger.Error(e, "Error Message");
             }
 
             Assert.IsNotNull(lException);
@@ -127,7 +132,7 @@ namespace NLog.Targets.Sentry.UnitTests
             {
                 var logger = LogManager.GetCurrentClassLogger();
 
-                var logEventInfo = LogEventInfo.Create(LogLevel.Error, "default", "Error Message", e);
+                var logEventInfo = LogEventInfo.Create(LogLevel.Error, "default", e, CultureInfo.InvariantCulture, "Error Message");
                 logEventInfo.Properties.Add("tag1", tag1Value);
                 logger.Log(logEventInfo);
             }

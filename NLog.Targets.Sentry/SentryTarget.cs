@@ -4,7 +4,6 @@ using SharpRaven;
 using SharpRaven.Data;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -12,12 +11,13 @@ using System.Reflection;
 // ReSharper disable CheckNamespace
 
 namespace NLog.Targets
-    // ReSharper restore CheckNamespace
+// ReSharper restore CheckNamespace
 {
     [Target("Sentry")]
     public class SentryTarget : TargetWithLayout
     {
         private Dsn dsn;
+        private TimeSpan clientTimeout;
         private readonly Lazy<IRavenClient> client;
         private static readonly string RootAssemblyVersion;
 
@@ -76,6 +76,20 @@ namespace NLog.Targets
         {
             get { return this.dsn?.ToString(); }
             set { this.dsn = new Dsn(value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the environment name to send with the event logs.
+        /// </summary>
+        public string Environment { get; set; }
+
+        /// <summary>
+        /// Gets or sets the timeout for the Raven client.
+        /// </summary>
+        public string Timeout
+        {
+            get { return this.clientTimeout.ToString("c"); }
+            set { this.clientTimeout = TimeSpan.ParseExact(value, "c", CultureInfo.InvariantCulture); }
         }
 
         /// <summary>
@@ -182,28 +196,29 @@ namespace NLog.Targets
         {
             var ravenClient = new RavenClient(this.dsn)
             {
-                ErrorOnCapture = this.LogException
+                ErrorOnCapture = this.LogException,
+                Timeout = this.clientTimeout,
+                Environment = this.Environment,
+                Release = RootAssemblyVersion
             };
 
-            string timeoutSetting = ConfigurationManager.AppSettings["RavenClient.Timeout"];
-            TimeSpan timeout;
-
-            if ((false == string.IsNullOrWhiteSpace(timeoutSetting)) && TimeSpan.TryParseExact(timeoutSetting, "c", CultureInfo.InvariantCulture, out timeout))
+            if (string.IsNullOrWhiteSpace(ravenClient.Environment))
             {
-                ravenClient.Timeout = timeout;
+                ravenClient.Environment = "develop";
             }
 
-            ravenClient.Release = RootAssemblyVersion;
-            string environment = ConfigurationManager.AppSettings["RavenClient.Environment"];
-
-            if (false == string.IsNullOrWhiteSpace(environment))
+            if (TimeSpan.Zero == ravenClient.Timeout)
             {
-                ravenClient.Environment = environment;
+                ravenClient.Timeout = TimeSpan.FromSeconds(10);
             }
 
             return ravenClient;
         }
 
+        /// <summary>
+        /// Logs an exception using the internal logger class.
+        /// </summary>
+        /// <param name="ex">The ex to log to the internal logger.</param>
         private void LogException(Exception ex)
         {
             InternalLogger.Error("Unable to send Sentry request: {0}", ex.Message);

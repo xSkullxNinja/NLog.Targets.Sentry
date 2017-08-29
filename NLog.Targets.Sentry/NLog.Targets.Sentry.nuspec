@@ -12,7 +12,7 @@
     <description>$description$</description>
     <copyright>$copyright$</copyright>
     <tags>NLog Sentry Log Logging</tags>
-    <releaseNotes>Changed the assembly name to NLog.Targets.Setry and hard coded the package name in the NuSpec
+    <releaseNotes>Changed to take in the environment and timeout parameters from the target attribute in the NLog config instead of the appSettings
     </releaseNotes>
   </metadata>
 </package>
