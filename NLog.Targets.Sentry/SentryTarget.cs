@@ -18,6 +18,7 @@ namespace NLog.Targets
     {
         private Dsn dsn;
         private TimeSpan clientTimeout;
+        private LogLevel minLogLevelForEvent = LogLevel.Trace;
         private readonly Lazy<IRavenClient> client;
         private static readonly string RootAssemblyVersion;
 
@@ -32,6 +33,16 @@ namespace NLog.Targets
             { LogLevel.Info, ErrorLevel.Info },
             { LogLevel.Trace, ErrorLevel.Debug },
             { LogLevel.Warn, ErrorLevel.Warning },
+        };
+
+        protected static readonly IDictionary<LogLevel, BreadcrumbLevel> BreadcrumbLevelMap = new Dictionary<LogLevel, BreadcrumbLevel>
+        {
+            { LogLevel.Debug, BreadcrumbLevel.Debug },
+            { LogLevel.Error, BreadcrumbLevel.Error },
+            { LogLevel.Fatal, BreadcrumbLevel.Critical },
+            { LogLevel.Info, BreadcrumbLevel.Info },
+            { LogLevel.Trace, BreadcrumbLevel.Debug },
+            { LogLevel.Warn, BreadcrumbLevel.Warning },
         };
 
         static SentryTarget()
@@ -76,6 +87,18 @@ namespace NLog.Targets
         {
             get { return this.dsn?.ToString(); }
             set { this.dsn = new Dsn(value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the minimum log level required to trigger a Sentry event.
+        /// </summary>
+        /// <remarks>
+        /// NLog <see cref="LogEventInfo"/>'s received below this level will be used for breadcrumbs.
+        /// </remarks>
+        public string MinLogLevelForEvent
+        {
+            get => minLogLevelForEvent?.ToString();
+            set => minLogLevelForEvent = LogLevel.FromString(value);
         }
 
         /// <summary>
@@ -127,40 +150,59 @@ namespace NLog.Targets
         {
             try
             {
-                var tags = this.SendLogEventInfoPropertiesAsTags
-                               ? logEvent.Properties.ToDictionary(x => x.Key.ToString(), x => x.Value.ToString())
-                               : null;
-
-                var extras = this.SendLogEventInfoPropertiesAsTags
-                                 ? null
-                                 : logEvent.Properties.ToDictionary(x => x.Key.ToString(), x => x.Value.ToString());
-
-                this.client.Value.Logger = logEvent.LoggerName;
-
-                // If the log event did not contain an exception and we're not ignoring
-                // those kinds of events then we'll send a "Message" to Sentry
-                if (logEvent.Exception == null && !this.IgnoreEventsWithNoException)
+                if (logEvent.Level >= this.minLogLevelForEvent)
                 {
-                    var sentryMessage = new SentryMessage(this.Layout.Render(logEvent));
-                    var msg = new SentryEvent(sentryMessage)
+                    var tags = this.SendLogEventInfoPropertiesAsTags
+                                   ? logEvent.Properties.ToDictionary(x => x.Key.ToString(), x => x.Value.ToString())
+                                   : null;
+
+                    var extras = this.SendLogEventInfoPropertiesAsTags
+                                     ? null
+                                     : logEvent.Properties.ToDictionary(x => x.Key.ToString(), x => x.Value.ToString());
+
+                    this.client.Value.Logger = logEvent.LoggerName;
+
+                    // If the log event did not contain an exception and we're not ignoring
+                    // those kinds of events then we'll send a "Message" to Sentry
+                    if (logEvent.Exception == null && !this.IgnoreEventsWithNoException)
                     {
-                        Level = LoggingLevelMap[logEvent.Level],
-                        Extra = extras,
-                        Tags = tags
-                    };
-                    this.client.Value.Capture(msg);
+                        var sentryMessage = new SentryMessage(this.Layout.Render(logEvent));
+                        var msg = new SentryEvent(sentryMessage)
+                        {
+                            Level = LoggingLevelMap[logEvent.Level],
+                            Extra = extras,
+                            Tags = tags
+                        };
+                        this.client.Value.Capture(msg);
+                    }
+                    else if (logEvent.Exception != null)
+                    {
+                        var sentryMessage = new SentryMessage(logEvent.FormattedMessage);
+                        var sentryEvent = new SentryEvent(logEvent.Exception)
+                        {
+                            Extra = extras,
+                            Level = LoggingLevelMap[logEvent.Level],
+                            Message = sentryMessage,
+                            Tags = tags
+                        };
+                        this.client.Value.Capture(sentryEvent);
+                    }
                 }
-                else if (logEvent.Exception != null)
+                else
                 {
-                    var sentryMessage = new SentryMessage(logEvent.FormattedMessage);
-                    var sentryEvent = new SentryEvent(logEvent.Exception)
+                    var breadcrumb = new Breadcrumb(logEvent.LoggerName)
                     {
-                        Extra = extras,
-                        Level = LoggingLevelMap[logEvent.Level],
-                        Message = sentryMessage,
-                        Tags = tags
+                        Level = BreadcrumbLevelMap[logEvent.Level],
+                        Message = logEvent.FormattedMessage,
                     };
-                    this.client.Value.Capture(sentryEvent);
+
+                    if (logEvent.HasProperties)
+                    {
+                        breadcrumb.Data =
+                            logEvent.Properties.ToDictionary(x => x.Key.ToString(), x => x.Value.ToString());
+                    }
+
+                    this.client.Value.AddTrail(breadcrumb);
                 }
             }
             catch (Exception ex)

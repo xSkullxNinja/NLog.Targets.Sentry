@@ -55,9 +55,7 @@
     <None Include="NLog.Targets.Sentry.nuspec">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Packages.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Robusto.1.0.2\build\Robusto.targets" Condition="Exists('..\packages\Robusto.1.0.2\build\Robusto.targets')" />
