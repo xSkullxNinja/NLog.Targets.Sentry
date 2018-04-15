@@ -2,6 +2,7 @@ Sentry Target for NLog
 ======================
 
 [![Build status](https://ci.appveyor.com/api/projects/status/y3weqx0b5nig986r?svg=true)](https://ci.appveyor.com/project/CurtisInstruments/nlog-targets-sentry)
+![NuGet](https://img.shields.io/nuget/v/NLog.Targets.Sentry3.svg)
 
 **NLog Sentry** is a custom target for [NLog](http://nlog-project.org/) enabling you to send logging messages to the [Sentry](http://getsentry.com) logging service.
 
