@@ -22,6 +22,6 @@ artifacts:
   name: NuGet
 deploy:
     - provider: Environment
-      name: NuGet
+      name: 'NuGet - willsont'
       on:
         appveyor_repo_tag: true
