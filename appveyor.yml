@@ -1,0 +1,27 @@
+version: 3.0.{build}
+image: Visual Studio 2017
+platform:
+    - Any CPU
+configuration:
+    - Release
+
+dotnet_csproj:
+  patch: true
+  file: '**\*.csproj'
+  version: '{version}'
+  package_version: '{version}'
+  assembly_version: '{version}'
+  file_version: '{version}'
+  informational_version: '{version}'
+before_build:
+- cmd: dotnet restore
+build:
+  verbosity: minimal
+artifacts:
+- path: NLog.Targets.Sentry\bin\Release\*.nupkg
+  name: NuGet
+deploy:
+    - provider: Environment
+      name: NuGet
+      on:
+        appveyor_repo_tag: true
