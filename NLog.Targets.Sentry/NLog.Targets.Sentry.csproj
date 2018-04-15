@@ -15,7 +15,6 @@
     <AssemblyVersion>3.0.0</AssemblyVersion>
     <Version>3.0.0</Version>
     <Authors>Bjarne Riis, Mike Dempster, Thomas Willson (Curtis Instruments)</Authors>
-    <Owners>Curtis Instruments</Owners>
     <PackageLicenseUrl>https://github.com/CurtisInstruments/NLog.Targets.Sentry/blob/master/License.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/CurtisInstruments/NLog.Targets.Sentry</PackageProjectUrl>
     <Description>Custom target for NLog enabling you to send logging messages to the Sentry logging service.</Description>
