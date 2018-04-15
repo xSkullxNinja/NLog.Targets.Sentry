@@ -13,6 +13,8 @@ using System.Reflection;
 namespace NLog.Targets
 // ReSharper restore CheckNamespace
 {
+    using System.Linq.Expressions;
+
     [Target("Sentry")]
     public class SentryTarget : TargetWithLayout
     {
@@ -60,22 +62,33 @@ namespace NLog.Targets
             {
                 // ReSharper disable PossibleNullReferenceException
                 var systemWebAssembly = AppDomain.CurrentDomain.GetAssemblies()
-                                                 .SingleOrDefault(e => e.FullName.StartsWith("System.Web,") && e.FullName.Contains("PublicKeyToken=b03f5f7f11d50a3a"));
-                var httpContext = systemWebAssembly.ExportedTypes.SingleOrDefault(e => "HttpContext" == e.Name && "System.Web" == e.Namespace);
-                var currentContextProperty = httpContext.GetProperty("Current", BindingFlags.Public | BindingFlags.Static);
+                                                 .SingleOrDefault(
+                                                                  e => e.FullName.StartsWith("System.Web,") &&
+                                                                       e.FullName.Contains(
+                                                                                           "PublicKeyToken=b03f5f7f11d50a3a"));
+                var httpContext =
+                    systemWebAssembly.ExportedTypes.SingleOrDefault(
+                                                                    e => "HttpContext" == e.Name &&
+                                                                         "System.Web" == e.Namespace);
+                var currentContextProperty =
+                    httpContext.GetProperty("Current", BindingFlags.Public | BindingFlags.Static);
                 var currentContext = currentContextProperty.GetValue(null);
-                var appInstanceProperty = currentContextProperty.PropertyType.GetProperty("ApplicationInstance");
+                var appInstanceProperty = currentContextProperty.PropertyType?.GetProperty("ApplicationInstance");
                 var appInstance = appInstanceProperty.GetValue(currentContext);
                 var appInstanceType = appInstance.GetType();
                 var appInstanceBaseType = appInstanceType.BaseType;
                 var rootAssemblyName = appInstanceBaseType.Assembly.GetName();
                 RootAssemblyVersion = rootAssemblyName.Version.ToString();
+
                 // ReSharper restore PossibleNullReferenceException
             }
             catch (NullReferenceException)
             {
                 // If we could not find the web assembly or any of the properties that we needed to access to get the root assembly version then just return
                 // because we have done all we can do.
+            }
+            catch (TargetException)
+            {
             }
         }
 
