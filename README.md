@@ -13,7 +13,7 @@ To use the Sentry target, simply add it an extension in the NLog.config file and
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
   <extensions>
-    <add assembly="NLog.Targets.Sentry" />
+    <add assembly="NLog.Targets.Sentry3" />
   </extensions>
 
   <targets>
