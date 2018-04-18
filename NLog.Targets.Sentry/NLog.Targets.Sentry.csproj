@@ -19,11 +19,9 @@
     <PackageProjectUrl>https://github.com/CurtisInstruments/NLog.Targets.Sentry</PackageProjectUrl>
     <Description>Custom target for NLog enabling you to send logging messages to the Sentry logging service.</Description>
     <PackageTags>NLog Sentry Log Logging</PackageTags>
-    <PackageReleaseNotes>- Added Sentry breadcrumb support by adding a minimum log level ("MinLogLevelForEvent") required for Sentry event generation.
-      - NLog Events with lower log levels will be recorded as breadcrumbs.
-      - Support .NET Standard 2.0
-      - Move to new .csproj format.
-      - Update Packages.</PackageReleaseNotes>
+    <PackageReleaseNotes>- Allow NLog to handle exceptions (retry/fallback) (#1)
+- Reduced memory allocation when handling LogEvent Properties (When no exception) (#1)
+- Added handling of null-values in LogEvent Properties. (#1)</PackageReleaseNotes>
     <Company>Curtis Instruments</Company>
     <RepositoryUrl>https://github.com/CurtisInstruments/NLog.Targets.Sentry</RepositoryUrl>
   </PropertyGroup>
