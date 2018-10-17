@@ -21,7 +21,8 @@ namespace NLog.Targets
         private TimeSpan clientTimeout;
         private LogLevel minLogLevelForEvent = LogLevel.Trace;
         private readonly Lazy<IRavenClient> client;
-        private static readonly string RootAssemblyVersion;
+        private VersionNumberType versionNumberType = Targets.VersionNumberType.AssemblyVersion;
+        private static readonly Assembly RootAssembly;
 
         /// <summary>
         /// Map of NLog log levels to Raven/Sentry log levels
@@ -52,8 +53,7 @@ namespace NLog.Targets
 
             if (null != entryAssembly)
             {
-                RootAssemblyVersion = entryAssembly.GetName()
-                                                   .Version.ToString();
+                RootAssembly = entryAssembly;
                 return;
             }
 
@@ -76,8 +76,7 @@ namespace NLog.Targets
                 var appInstance = appInstanceProperty.GetValue(currentContext);
                 var appInstanceType = appInstance.GetType();
                 var appInstanceBaseType = appInstanceType.BaseType;
-                var rootAssemblyName = appInstanceBaseType.Assembly.GetName();
-                RootAssemblyVersion = rootAssemblyName.Version.ToString();
+                RootAssembly = appInstanceBaseType.Assembly;
 
                 // ReSharper restore PossibleNullReferenceException
             }
@@ -117,6 +116,15 @@ namespace NLog.Targets
         /// Gets or sets the environment name to send with the event logs.
         /// </summary>
         public string Environment { get; set; }
+
+        /// <summary>
+        /// Gets or sets the type of version number to send with the logs.
+        /// </summary>
+        public string VersionNumberType
+        {
+            get => versionNumberType.ToString();
+            set => versionNumberType = (VersionNumberType)Enum.Parse(typeof(VersionNumberType), value);
+        }
 
         /// <summary>
         /// Gets or sets the timeout for the Raven client.
@@ -266,7 +274,7 @@ namespace NLog.Targets
                 ErrorOnCapture = this.LogException,
                 Timeout = this.clientTimeout,
                 Environment = this.Environment,
-                Release = RootAssemblyVersion
+                Release = GetVersion(),
             };
 
             if (string.IsNullOrWhiteSpace(ravenClient.Environment))
@@ -280,6 +288,41 @@ namespace NLog.Targets
             }
 
             return ravenClient;
+        }
+
+        private string GetVersion()
+        {
+            switch (versionNumberType)
+            {
+                case Targets.VersionNumberType.AssemblyVersion:
+                    return RootAssembly?.GetName().Version.ToString();
+                case Targets.VersionNumberType.AssemblyFileVersion:
+                    if (RootAssembly != null)
+                    {
+                        return (Attribute.GetCustomAttributes(RootAssembly, typeof(AssemblyFileVersionAttribute)) as
+                                    AssemblyFileVersionAttribute[])?.FirstOrDefault()
+                                                                   ?.Version;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                case Targets.VersionNumberType.AssemblyInformationalVersion:
+                    if (RootAssembly != null)
+                    {
+                        return (Attribute.GetCustomAttributes(
+                                                              RootAssembly,
+                                                              typeof(AssemblyInformationalVersionAttribute))
+                                    as AssemblyInformationalVersionAttribute[])?.FirstOrDefault()
+                                                                               ?.InformationalVersion;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         /// <summary>
