@@ -13,7 +13,7 @@
     <PackageReference Include="NLog.Config" Version="4.5.2" />
     <PackageReference Include="NLog.Schema" Version="4.5.2" />
     <PackageReference Include="NUnit" Version="3.10.1" />
-    <PackageReference Include="SharpRaven" Version="2.3.2" />
+    <PackageReference Include="SharpRaven" Version="2.4.0" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.3.0" />
   </ItemGroup>
   
