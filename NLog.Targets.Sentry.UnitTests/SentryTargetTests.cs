@@ -43,9 +43,21 @@ namespace NLog.Targets.Sentry.UnitTests
         [Test]
         public void TestBadDsn()
         {
-            // ReSharper disable ObjectCreationAsStatement
-            Assert.Throws<ArgumentException>(() => new SentryTarget(null) { Dsn = "http://localhost" });
-            // ReSharper restore ObjectCreationAsStatement
+            // Setup NLog
+            var sentryTarget = new SentryTarget
+            {
+                Dsn = "http://localhost" 
+            };
+            var configuration = new LoggingConfiguration();
+
+            configuration.AddTarget("NLogSentry", sentryTarget);
+            configuration.LoggingRules.Add(new LoggingRule("*", LogLevel.Trace, sentryTarget));
+            LogManager.Configuration = configuration;
+
+            var logger = LogManager.GetCurrentClassLogger();
+
+            //Might want this to happen before the first log.
+            Assert.Throws<ArgumentException>(() => logger.Warn("Logging should fail DSN Creation."));
         }
 
         [Test]

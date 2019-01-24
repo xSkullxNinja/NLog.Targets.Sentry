@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 
 using System.Reflection;
+using NLog.Layouts;
 
 // ReSharper disable CheckNamespace
 
@@ -17,7 +18,6 @@ namespace NLog.Targets
     [Target("Sentry")]
     public class SentryTarget : TargetWithLayout
     {
-        private Dsn dsn;
         private TimeSpan clientTimeout;
         private LogLevel minLogLevelForEvent = LogLevel.Trace;
         private readonly Lazy<IRavenClient> client;
@@ -94,12 +94,7 @@ namespace NLog.Targets
         /// The DSN for the Sentry host
         /// </summary>
         [RequiredParameter]
-        public string Dsn
-        {
-            get { return this.dsn?.ToString(); }
-            set { this.dsn = new Dsn(value); }
-        }
-
+        public Layout Dsn { get; set; }
         /// <summary>
         /// Gets or sets the minimum log level required to trigger a Sentry event.
         /// </summary>
@@ -160,6 +155,11 @@ namespace NLog.Targets
         public SentryTarget(IRavenClient ravenClient)
         {
             this.client = new Lazy<IRavenClient>(() => ravenClient);
+        }
+
+        protected override void InitializeTarget()
+        {
+            Dsn.Render(LogEventInfo.CreateNullEvent());
         }
 
         /// <summary>
@@ -269,7 +269,7 @@ namespace NLog.Targets
         /// <returns>New instance of a RavenClient.</returns>
         private IRavenClient DefaultClientFactory()
         {
-            var ravenClient = new RavenClient(this.dsn)
+            var ravenClient = new RavenClient(new Dsn(Dsn.ToString()))
             {
                 ErrorOnCapture = this.LogException,
                 Timeout = this.clientTimeout,
